@@ -37,7 +37,6 @@ export function AttendeeList() {
 						placeholder="Search attendees..."
 					/>
 				</div>
-				{searchValue}
 			</div>
 			<Table>
 				<thead>
@@ -56,34 +55,38 @@ export function AttendeeList() {
 					</TableRow>
 				</thead>
 				<tbody>
-					{attendees.map((attendee) => {
-						return (
-							<TableRow key={attendee.id}>
-								<TableCell>
-									<input
-										className="bg-black/20 size-4 rounded border border-white/10 checked:bg-orange-400"
-										type="checkbox"
-									/>
-								</TableCell>
-								<TableCell>{attendee.id}</TableCell>
-								<TableCell>
-									<div className="flex flex-col gap-1">
-										<span className="text-white font-semibold">
-											{attendee.name}
-										</span>
-										<span>{attendee.email}</span>
-									</div>
-								</TableCell>
-								<TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
-								<TableCell>{dayjs().to(attendee.checkedInAt)}</TableCell>
-								<TableCell>
-									<IconButton transparent>
-										<MoreHorizontal className="size-4" />
-									</IconButton>
-								</TableCell>
-							</TableRow>
+					{attendees
+						.filter((attendee) =>
+							attendee.name.toLowerCase().includes(searchValue.toLowerCase())
 						)
-					})}
+						.map((attendee) => {
+							return (
+								<TableRow key={attendee.id}>
+									<TableCell>
+										<input
+											className="bg-black/20 size-4 rounded border border-white/10 checked:bg-orange-400"
+											type="checkbox"
+										/>
+									</TableCell>
+									<TableCell>{attendee.id}</TableCell>
+									<TableCell>
+										<div className="flex flex-col gap-1">
+											<span className="text-white font-semibold">
+												{attendee.name}
+											</span>
+											<span>{attendee.email}</span>
+										</div>
+									</TableCell>
+									<TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
+									<TableCell>{dayjs().to(attendee.checkedInAt)}</TableCell>
+									<TableCell>
+										<IconButton transparent>
+											<MoreHorizontal className="size-4" />
+										</IconButton>
+									</TableCell>
+								</TableRow>
+							)
+						})}
 				</tbody>
 				<tfoot>
 					<TableRow>
