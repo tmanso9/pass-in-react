@@ -20,7 +20,7 @@ dayjs.extend(relativeTime)
 
 export function AttendeeList() {
 	const [searchValue, setSearchValue] = useState('')
-	const [page, setPage] = useState(1)
+	const [page, setPage] = useState(0)
 
 	const filteredAttendees = attendees.filter((attendee) => {
 		return (
@@ -29,7 +29,7 @@ export function AttendeeList() {
 		)
 	})
 
-	const lastPage = Math.ceil(filteredAttendees.length / 10)
+	const lastPage = Math.floor(filteredAttendees.length / 10)
 	const pageQuantity = filteredAttendees.slice((page - 1) * 10, page * 10).reduce((acc) => {
 		acc++
 		return acc
@@ -37,15 +37,15 @@ export function AttendeeList() {
 
 	function onSearchInputChanged(e: ChangeEvent<HTMLInputElement>) {
 		setSearchValue(e.target.value)
-		setPage(1)
+		setPage(0)
 	}
 
 	function goToFirstPage() {
-		setPage(1)
+		setPage(0)
 	}
 
 	function goToPreviousPage() {
-		if (page > 1) setPage(page - 1)
+		if (page > 0) setPage(page - 1)
 	}
 
 	function goToNextPage() {
@@ -86,7 +86,7 @@ export function AttendeeList() {
 					</TableRow>
 				</thead>
 				<tbody>
-					{filteredAttendees.slice((page - 1) * 10, page * 10).map((attendee) => {
+					{filteredAttendees.slice((page) * 10, (page + 1) * 10).map((attendee) => {
 						return (
 							<TableRow key={attendee.id}>
 								<TableCell>
@@ -123,7 +123,7 @@ export function AttendeeList() {
 						<TableCell className="text-right" colSpan={3}>
 							<div className="inline-flex gap-8 items-center">
 								<span>
-									Page {page} of {lastPage}
+									Page {page + 1} of {lastPage + 1}
 								</span>
 								<div className="flex gap-1.5">
 									<IconButton onClick={goToFirstPage} disabled={page === 1}>
