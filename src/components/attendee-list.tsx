@@ -22,10 +22,22 @@ export function AttendeeList() {
 	const [searchValue, setSearchValue] = useState('')
 	const [page, setPage] = useState(1)
 
-	const lastPage = Math.ceil(attendees.length / 10)
+	const filteredAttendees = attendees.filter((attendee) => {
+		return (
+			attendee.name.toLowerCase().includes(searchValue.toLowerCase()) ||
+			attendee.email.toLowerCase().includes(searchValue.toLowerCase())
+		)
+	})
+
+	const lastPage = Math.ceil(filteredAttendees.length / 10)
+	const pageQuantity = filteredAttendees.slice((page - 1) * 10, page * 10).reduce((acc) => {
+		acc++
+		return acc
+	}, 0)
 
 	function onSearchInputChanged(e: ChangeEvent<HTMLInputElement>) {
 		setSearchValue(e.target.value)
+		setPage(1)
 	}
 
 	function goToFirstPage() {
@@ -33,11 +45,11 @@ export function AttendeeList() {
 	}
 
 	function goToPreviousPage() {
-		setPage(page - 1)
+		if (page > 1) setPage(page - 1)
 	}
 
 	function goToNextPage() {
-		setPage(page + 1)
+		if (page < lastPage) setPage(page + 1)
 	}
 
 	function goToLastPage() {
@@ -74,43 +86,40 @@ export function AttendeeList() {
 					</TableRow>
 				</thead>
 				<tbody>
-					{attendees
-						.filter((attendee) =>
-							attendee.name.toLowerCase().includes(searchValue.toLowerCase())
+					{filteredAttendees.slice((page - 1) * 10, page * 10).map((attendee) => {
+						return (
+							<TableRow key={attendee.id}>
+								<TableCell>
+									<input
+										className="bg-black/20 size-4 rounded border border-white/10 checked:bg-orange-400"
+										type="checkbox"
+									/>
+								</TableCell>
+								<TableCell>{attendee.id}</TableCell>
+								<TableCell>
+									<div className="flex flex-col gap-1">
+										<span className="text-white font-semibold">
+											{attendee.name}
+										</span>
+										<span>{attendee.email}</span>
+									</div>
+								</TableCell>
+								<TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
+								<TableCell>{dayjs().to(attendee.checkedInAt)}</TableCell>
+								<TableCell>
+									<IconButton transparent>
+										<MoreHorizontal className="size-4" />
+									</IconButton>
+								</TableCell>
+							</TableRow>
 						)
-						.slice((page - 1) * 10, page * 10)
-						.map((attendee) => {
-							return (
-								<TableRow key={attendee.id}>
-									<TableCell>
-										<input
-											className="bg-black/20 size-4 rounded border border-white/10 checked:bg-orange-400"
-											type="checkbox"
-										/>
-									</TableCell>
-									<TableCell>{attendee.id}</TableCell>
-									<TableCell>
-										<div className="flex flex-col gap-1">
-											<span className="text-white font-semibold">
-												{attendee.name}
-											</span>
-											<span>{attendee.email}</span>
-										</div>
-									</TableCell>
-									<TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
-									<TableCell>{dayjs().to(attendee.checkedInAt)}</TableCell>
-									<TableCell>
-										<IconButton transparent>
-											<MoreHorizontal className="size-4" />
-										</IconButton>
-									</TableCell>
-								</TableRow>
-							)
-						})}
+					})}
 				</tbody>
 				<tfoot>
 					<TableRow>
-						<TableCell colSpan={3}>Showing 10 of {attendees.length} items</TableCell>
+						<TableCell colSpan={3}>
+							Showing {pageQuantity} of {filteredAttendees.length} items
+						</TableCell>
 						<TableCell className="text-right" colSpan={3}>
 							<div className="inline-flex gap-8 items-center">
 								<span>
