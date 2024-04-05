@@ -11,33 +11,48 @@ import { Table } from './table/table'
 import { TableHeader } from './table/table-header'
 import { TableCell } from './table/table-cell'
 import { TableRow } from './table/table-row'
-import { ChangeEvent, useState } from 'react'
-import { attendees } from '../mock-data/attendees'
+import { ChangeEvent, useEffect, useState } from 'react'
 import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 
 dayjs.extend(relativeTime)
 
+interface Attendee {
+	id: string
+	name: string
+	email: string
+	createdAt: string
+	checkedInAt: string | null
+}
+
 export function AttendeeList() {
-	const [searchValue, setSearchValue] = useState('')
+	const [search, setSearchValue] = useState('')
 	const [page, setPage] = useState(0)
+	const [attendees, setAttendees] = useState<Attendee[]>([])
+	const [total, setTotal] = useState(0)
 
-	const filteredAttendees = attendees.filter((attendee) => {
-		return (
-			attendee.name.toLowerCase().includes(searchValue.toLowerCase()) ||
-			attendee.email.toLowerCase().includes(searchValue.toLowerCase())
+	useEffect(() => {
+		const url = new URL(
+			'http://localhost:3000/events/1df0f5d8-066d-4c41-b016-f6ca9a241c6a/attendees'
 		)
-	})
 
-	const lastPage = Math.floor(filteredAttendees.length / 10)
-	const pageQuantity = filteredAttendees.slice((page - 1) * 10, page * 10).reduce((acc) => {
-		acc++
-		return acc
-	}, 0)
+		url.searchParams.set('pageIndex', page.toString())
+		if (search.length > 0)
+			url.searchParams.set('query', search)
+		fetch(url.toString())
+			.then((response) => response.json())
+			.then((data) => {
+				setAttendees(data.attendees)
+				setTotal(data.total)
+			})
+			.catch((error) => console.error(error))
+	}, [page, search])
+
+	const lastPage = Math.floor(total / 10)
 
 	function onSearchInputChanged(e: ChangeEvent<HTMLInputElement>) {
 		setSearchValue(e.target.value)
-		setPage(0)
+		goToFirstPage()
 	}
 
 	function goToFirstPage() {
@@ -64,7 +79,7 @@ export function AttendeeList() {
 					<Search className="size-4 text-emerald-300" />
 					<input
 						onChange={onSearchInputChanged}
-						className="bg-transparent flex-1 p-0 border-0 text-sm ring-0"
+						className="bg-transparent flex-1 p-0 border-0 text-sm focus:ring-0"
 						placeholder="Search attendees..."
 					/>
 				</div>
@@ -86,7 +101,7 @@ export function AttendeeList() {
 					</TableRow>
 				</thead>
 				<tbody>
-					{filteredAttendees.slice((page) * 10, (page + 1) * 10).map((attendee) => {
+					{attendees.map((attendee: Attendee) => {
 						return (
 							<TableRow key={attendee.id}>
 								<TableCell>
@@ -105,7 +120,15 @@ export function AttendeeList() {
 									</div>
 								</TableCell>
 								<TableCell>{dayjs().to(attendee.createdAt)}</TableCell>
-								<TableCell>{dayjs().to(attendee.checkedInAt)}</TableCell>
+								<TableCell>
+									{attendee.checkedInAt ? (
+										dayjs().to(attendee.checkedInAt)
+									) : (
+										<span className="text-zinc-500 text-sm">
+											Did not check in
+										</span>
+									)}
+								</TableCell>
 								<TableCell>
 									<IconButton transparent>
 										<MoreHorizontal className="size-4" />
@@ -118,7 +141,7 @@ export function AttendeeList() {
 				<tfoot>
 					<TableRow>
 						<TableCell colSpan={3}>
-							Showing {pageQuantity} of {filteredAttendees.length} items
+							Showing {attendees.length} of {total} items
 						</TableCell>
 						<TableCell className="text-right" colSpan={3}>
 							<div className="inline-flex gap-8 items-center">
@@ -126,10 +149,10 @@ export function AttendeeList() {
 									Page {page + 1} of {lastPage + 1}
 								</span>
 								<div className="flex gap-1.5">
-									<IconButton onClick={goToFirstPage} disabled={page === 1}>
+									<IconButton onClick={goToFirstPage} disabled={page === 0}>
 										<ChevronsLeft className="size-4" />
 									</IconButton>
-									<IconButton onClick={goToPreviousPage} disabled={page === 1}>
+									<IconButton onClick={goToPreviousPage} disabled={page === 0}>
 										<ChevronLeft className="size-4" />
 									</IconButton>
 									<IconButton onClick={goToNextPage} disabled={page === lastPage}>
