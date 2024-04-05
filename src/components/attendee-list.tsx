@@ -20,9 +20,28 @@ dayjs.extend(relativeTime)
 
 export function AttendeeList() {
 	const [searchValue, setSearchValue] = useState('')
+	const [page, setPage] = useState(1)
+
+	const lastPage = Math.ceil(attendees.length / 10)
 
 	function onSearchInputChanged(e: ChangeEvent<HTMLInputElement>) {
 		setSearchValue(e.target.value)
+	}
+
+	function goToFirstPage() {
+		setPage(1)
+	}
+
+	function goToPreviousPage() {
+		setPage(page - 1)
+	}
+
+	function goToNextPage() {
+		setPage(page + 1)
+	}
+
+	function goToLastPage() {
+		setPage(lastPage)
 	}
 
 	return (
@@ -59,6 +78,7 @@ export function AttendeeList() {
 						.filter((attendee) =>
 							attendee.name.toLowerCase().includes(searchValue.toLowerCase())
 						)
+						.slice((page - 1) * 10, page * 10)
 						.map((attendee) => {
 							return (
 								<TableRow key={attendee.id}>
@@ -90,21 +110,23 @@ export function AttendeeList() {
 				</tbody>
 				<tfoot>
 					<TableRow>
-						<TableCell colSpan={3}>Showing 10 of 228 items</TableCell>
+						<TableCell colSpan={3}>Showing 10 of {attendees.length} items</TableCell>
 						<TableCell className="text-right" colSpan={3}>
 							<div className="inline-flex gap-8 items-center">
-								<span>Page 1 of 11</span>
+								<span>
+									Page {page} of {lastPage}
+								</span>
 								<div className="flex gap-1.5">
-									<IconButton>
+									<IconButton onClick={goToFirstPage} disabled={page === 1}>
 										<ChevronsLeft className="size-4" />
 									</IconButton>
-									<IconButton>
+									<IconButton onClick={goToPreviousPage} disabled={page === 1}>
 										<ChevronLeft className="size-4" />
 									</IconButton>
-									<IconButton>
+									<IconButton onClick={goToNextPage} disabled={page === lastPage}>
 										<ChevronRight className="size-4" />
 									</IconButton>
-									<IconButton>
+									<IconButton onClick={goToLastPage} disabled={page === lastPage}>
 										<ChevronsRight className="size-4" />
 									</IconButton>
 								</div>
