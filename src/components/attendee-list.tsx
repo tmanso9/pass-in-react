@@ -26,19 +26,28 @@ interface Attendee {
 }
 
 export function AttendeeList() {
-	const [search, setSearchValue] = useState('')
-	const [page, setPage] = useState(0)
+	const [search, setSearchValue] = useState(() => {
+		const url = new URL(window.location.toString())
+		const search = url.searchParams.get('search')
+		return search || ''
+	})
+	const [page, setPage] = useState(() => {
+		const url = new URL(window.location.toString())
+		const page = url.searchParams.get('page')
+		return page ? parseInt(page) : 1
+	})
 	const [attendees, setAttendees] = useState<Attendee[]>([])
 	const [total, setTotal] = useState(0)
+
+	const lastPage = Math.ceil(total / 10)
 
 	useEffect(() => {
 		const url = new URL(
 			'http://localhost:3000/events/1df0f5d8-066d-4c41-b016-f6ca9a241c6a/attendees'
 		)
 
-		url.searchParams.set('pageIndex', page.toString())
-		if (search.length > 0)
-			url.searchParams.set('query', search)
+		url.searchParams.set('pageIndex', (page - 1).toString())
+		if (search.length > 0) url.searchParams.set('query', search)
 		fetch(url.toString())
 			.then((response) => response.json())
 			.then((data) => {
@@ -48,27 +57,39 @@ export function AttendeeList() {
 			.catch((error) => console.error(error))
 	}, [page, search])
 
-	const lastPage = Math.floor(total / 10)
+	const setCurrentSearch = (search: string) => {
+		const url = new URL(window.location.toString())
+		url.searchParams.set('search', search)
+		window.history.pushState({}, '', url.toString())
+		setSearchValue(search)
+	}
+
+	const setCurrentPage = (page: number) => {
+		const url = new URL(window.location.toString())
+		url.searchParams.set('page', String(page))
+		window.history.pushState({}, '', url.toString())
+		setPage(page)
+	}
 
 	function onSearchInputChanged(e: ChangeEvent<HTMLInputElement>) {
-		setSearchValue(e.target.value)
+		setCurrentSearch(e.target.value)
 		goToFirstPage()
 	}
 
 	function goToFirstPage() {
-		setPage(0)
+		setCurrentPage(1)
 	}
 
 	function goToPreviousPage() {
-		if (page > 0) setPage(page - 1)
+		setCurrentPage(page - 1)
 	}
 
 	function goToNextPage() {
-		if (page < lastPage) setPage(page + 1)
+		setCurrentPage(page + 1)
 	}
 
 	function goToLastPage() {
-		setPage(lastPage)
+		setCurrentPage(lastPage)
 	}
 
 	return (
@@ -79,6 +100,7 @@ export function AttendeeList() {
 					<Search className="size-4 text-emerald-300" />
 					<input
 						onChange={onSearchInputChanged}
+						value={search}
 						className="bg-transparent flex-1 p-0 border-0 text-sm focus:ring-0"
 						placeholder="Search attendees..."
 					/>
@@ -146,7 +168,7 @@ export function AttendeeList() {
 						<TableCell className="text-right" colSpan={3}>
 							<div className="inline-flex gap-8 items-center">
 								<span>
-									Page {page + 1} of {lastPage + 1}
+									Page {page} of {lastPage}
 								</span>
 								<div className="flex gap-1.5">
 									<IconButton onClick={goToFirstPage} disabled={page === 0}>
