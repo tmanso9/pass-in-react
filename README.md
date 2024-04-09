@@ -1,6 +1,6 @@
-# pass.in Front-end
+# pass.in
 
-pass.in Front-end is a React.js application that complements the [pass.in back-end application](https://github.com/tmanso9/pass-in-api.git) for managing participants in in-person events.
+pass.in is a React.js application that complements the [pass.in backend application](https://github.com/tmanso9/pass-in-api.git) for managing participants in in-person events.
 
 <img width="1234" alt="Screenshot 2024-04-10 at 00 05 22" src="https://github.com/tmanso9/pass-in-react/assets/77019593/31e843e8-5075-4d65-a5bc-6133083d9635">
 
