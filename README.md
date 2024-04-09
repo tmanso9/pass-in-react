@@ -6,7 +6,7 @@ pass.in is a React.js application that complements the [pass.in backend applicat
 
 ## Introduction
 
-pass.in Front-end provides a user-friendly interface for interacting with the pass.in back-end. It allows organizers to search for participants registered to an event and filter them by query or pagination.
+pass.in provides a user-friendly interface for interacting with the pass.in API. It allows organizers to search for participants registered to an event and filter them by query or pagination.
 
 ## Features
 
@@ -15,7 +15,7 @@ pass.in Front-end provides a user-friendly interface for interacting with the pa
 
 ## Getting Started
 
-To get started with pass.in Front-end, follow these steps:
+To get started with pass.in, follow these steps:
 
 1. Clone the repository:
 
@@ -34,7 +34,7 @@ To get started with pass.in Front-end, follow these steps:
    npm install
    ```
 
-4. Ensure the [pass.in back-end application](https://github.com/tmanso9/pass-in-api.git) is running on port 3000.
+4. Ensure the [pass.in backend application](https://github.com/tmanso9/pass-in-api.git) is running on port 3000.
 
 5. Start the development server
 
