@@ -59,9 +59,9 @@ export function AttendeeList() {
 
 	const setCurrentSearch = (search: string) => {
 		const url = new URL(window.location.toString())
-		url.searchParams.set('search', search)
+		url.searchParams.set('search', search.toLowerCase())
 		window.history.pushState({}, '', url.toString())
-		setSearchValue(search)
+		setSearchValue(search.toLowerCase())
 	}
 
 	const setCurrentPage = (page: number) => {
